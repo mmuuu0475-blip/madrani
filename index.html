@@ -3,26 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Madrani - FasterFast | التحميل الرسمي</title>
-    <meta name="description" content="الموقع الرسمي لتحميل تطبيق Madrani (المعروف سابقاً بـ FasterFast). أسرع تطبيق للدردشة.">
-    <meta name="keywords" content="Madrani, مدراني, FasterFast, فاستر فاست, تحميل">
-    
+    <title>Madrani DZ - التحميل الرسمي</title>
     <style>
-        body { font-family: sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 320px; border-top: 5px solid #007bff; }
+        body { font-family: sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
+        .card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 320px; border-top: 5px solid #007bff; }
         .icon { width: 100px; height: 100px; border-radius: 20px; margin-bottom: 20px; }
-        h1 { font-size: 28px; color: #333; margin: 0; }
-        h2 { font-size: 18px; color: #007bff; margin-bottom: 20px; font-weight: normal; }
-        .btn { background-color: #007bff; color: white; text-decoration: none; padding: 16px 45px; border-radius: 50px; display: inline-block; font-weight: bold; font-size: 18px; }
+        h1 { font-size: 26px; color: #333; margin: 0; }
+        .btn { background-color: #007bff; color: white; text-decoration: none; padding: 15px 40px; border-radius: 50px; display: inline-block; font-weight: bold; margin-top: 25px; width: 80%; }
+        
+        /* واجهة انتظار بسيطة أثناء التحويل */
+        #redirecting {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 10000; padding: 50px 20px;
+        }
     </style>
 </head>
 <body>
+
+    <div id="redirecting">
+        <img src="icon.png" width="80">
+        <h2>جاري تحويلك لمتصفح التحميل...</h2>
+        <p>يرجى الانتظار لحظة لضمان تنزيل تطبيق <b>Madrani DZ</b> بنجاح.</p>
+    </div>
+
     <div class="card">
         <img src="icon.png" class="icon">
-        <h1>Madrani</h1>
-        <h2>(FasterFast)</h2>
-        <p>النسخة الرسمية الآمنة</p>
+        <h1>Madrani DZ</h1>
+        <p>(FasterFast)</p>
         <a href="app-release.apk" download class="btn">تحميل APK مباشر</a>
     </div>
+
+    <script>
+        (function() {
+            const currentUrl = window.location.href;
+            const ua = navigator.userAgent.toLowerCase();
+            
+            // الكشف عن المتصفحات التي لا تدعم التحميل المباشر
+            const isLimited = ua.includes("googlego") || ua.includes("fbav") || ua.includes("instagram") || ua.includes("gsa");
+
+            if (isLimited) {
+                // إظهار واجهة التحويل
+                document.getElementById('redirecting').style.display = 'block';
+                
+                // أمر نظام أندرويد لفتح الرابط بمتصفح خارجي فوراً
+                const intentUrl = "intent://" + currentUrl.replace(/^https?:\/\//, "") + "#Intent;scheme=https;action=android.intent.action.VIEW;end";
+                
+                // التحويل التلقائي المباشر
+                setTimeout(function() {
+                    window.location.href = intentUrl;
+                }, 500); // تأخير بسيط لضمان استجابة النظام
+            }
+        })();
+    </script>
 </body>
 </html>
