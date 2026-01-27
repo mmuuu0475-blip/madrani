@@ -333,7 +333,7 @@ window.handleLogin = async () => {
             if(u.id === me.id) return;
 
             // تحديد الحالة: إذا كان آخر نشاط أقل من دقيقتين نعتبره متصل
-            const isOnline = u.lastSeen && (Date.now() - u.lastSeen < 120000);
+            const isOnline = u.lastSeen && (Date.now() - u.lastSeen < 20000);
             const statusText = isOnline ? "متصل الآن" : timeAgo(u.lastSeen);
             const statusColor = isOnline ? "bg-green-500" : "bg-gray-400";
 
