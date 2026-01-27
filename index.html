@@ -363,56 +363,51 @@ setInterval(async () => {
             lastSeen: Date.now()
         });
     }
-}, 60000); // تحديث كل 60 ثانية
-        // --- نظام الدردشة المطور ---
-        window.openChat = (id, av, nick) => {
-            activeTarget = id;
-            document.getElementById('chat-target-name').innerText = nick;
-            document.getElementById('chat-target-av').src = av;
-            document.getElementById('chat-modal-overlay').style.display = 'flex';
-            
-            if(chatUnsub) chatUnsub();
-            const roomId = [me.id, activeTarget].sort().join('_');
-            const q = query(collection(db, "messages"), orderBy("ts", "asc"));
+}, 20000); // تحديث كل 60 ثانية
+window.openChat = (id, av, nick) => {
+    activeTarget = id;
+    document.getElementById('chat-target-name').innerText = nick;
+    document.getElementById('chat-target-av').src = av;
+    document.getElementById('chat-modal-overlay').style.display = 'flex';
+    
+    if(chatUnsub) chatUnsub(); // إلغاء الاشتراك السابق لمنع تداخل المحادثات
+    
+    const roomId = [me.id, activeTarget].sort().join('_');
+    const q = query(collection(db, "messages"), orderBy("ts", "asc"));
 
-            chatUnsub = onSnapshot(q, snap => {
-                const container = document.getElementById('messages-container');
-                container.innerHTML = "";
-                snap.forEach(d => {
-// أضف هذا داخل مستمع onSnapshot الخاص بالرسائل
-if (m.receiver === me.id && m.sender !== activeTarget) {
-    Swal.fire({
-        toast: true,
-        position: 'top-start',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        icon: 'info',
-        title: `رسالة جديدة من ${m.sender}`,
-        didClick: () => openChat(m.sender, '', 'مستخدم') // يمكنك تحسين جلب البيانات هنا
-    });
-}
-                    const m = d.data();
-                    if(m.room === roomId) {
-                        const isMe = m.sender === me.id;
-                        const div = document.createElement('div');
-                        div.className = `bubble ${isMe ? 'sent' : 'received'}`;
-                        
-                        if(m.type === 'img') div.innerHTML = `<img src="${m.url}" class="w-32 rounded-lg cursor-pointer mb-1" onclick="zoomMedia('${m.url}')">`;
-                        if(m.type === 'vid') div.innerHTML = `<video src="${m.url}" class="w-32 rounded-lg mb-1"></video><button onclick="zoomMedia('${m.url}','vid')" class="text-[10px] underline">فتح الفيديو</button>`;
-                        if(m.type === 'audio') div.innerHTML = `
-                            <div class="flex items-center gap-2" ondblclick="playAudio('${m.url}')">
-                                <i class="fas fa-play-circle text-2xl"></i>
-                                <span class="text-[9px]">اضغط مرتين للاستماع</span>
-                            </div>`;
-                        
-                        if(m.txt) div.innerHTML += `<div>${m.txt}</div>`;
-                        container.appendChild(div);
-                    }
+    chatUnsub = onSnapshot(q, snap => {
+        const container = document.getElementById('messages-container');
+        container.innerHTML = "";
+        
+        snap.forEach(d => {
+            const m = d.data(); // تعريف البيانات أولاً
+
+            // 1. نظام التنبيهات (يظهر فقط إذا كانت الرسالة لي ولست فاتح محادثة المرسل حالياً)
+            if (m.receiver === me.id && m.sender !== activeTarget && m.ts > Date.now() - 5000) {
+                Swal.fire({
+                    toast: true, position: 'top-start', showConfirmButton: false,
+                    timer: 3000, icon: 'info', title: `رسالة جديدة من ${m.sender}`
                 });
-                container.scrollTop = container.scrollHeight;
-            });
-        };
+            }
+
+            // 2. عرض الرسائل (المرسل والمستقبل يريانها هنا)
+            if(m.room === roomId) {
+                const isMe = m.sender === me.id;
+                const div = document.createElement('div');
+                div.className = `bubble ${isMe ? 'sent' : 'received'}`;
+                
+                // إضافة محتوى الرسالة حسب نوعها
+                if(m.type === 'img') div.innerHTML = `<img src="${m.url}" class="w-32 rounded-lg mb-1" onclick="zoomMedia('${m.url}')">`;
+                else if(m.type === 'vid') div.innerHTML = `<video src="${m.url}" class="w-32 rounded-lg mb-1"></video>`;
+                else if(m.type === 'audio') div.innerHTML = `<div class="flex items-center gap-2" ondblclick="playAudio('${m.url}')"><i class="fas fa-play-circle text-2xl"></i> <span class="text-[9px]">بصمة صوتية</span></div>`;
+                
+                if(m.txt) div.innerHTML += `<div>${m.txt}</div>`;
+                container.appendChild(div);
+            }
+        });
+        container.scrollTop = container.scrollHeight;
+    });
+};
 
         window.sendTextMessage = async () => {
             const inp = document.getElementById('msg-text');
