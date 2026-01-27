@@ -154,6 +154,10 @@
         <footer class="fixed bottom-0 inset-x-0 bg-white border-t p-4 flex justify-around items-center z-50">
             <div onclick="switchView('users')" class="nav-card active" id="btn-users"><i class="fas fa-users text-xl"></i><p class="text-[10px] font-bold">المستخدمين</p></div>
             <div onclick="switchView('friends')" class="nav-card" id="btn-friends"><i class="fas fa-user-friends text-xl"></i><p class="text-[10px] font-bold">الأصدقاء</p></div>
+<div onclick="requestJoinGroup()" class="nav-card text-gold-500" id="btn-vip-group">
+    <i class="fas fa-crown text-xl text-yellow-500"></i>
+    <p class="text-[10px] font-bold">المجموعة</p>
+</div>
             <div onclick="switchView('profile')" class="nav-card" id="btn-profile"><i class="fas fa-user-circle text-xl"></i><p class="text-[10px] font-bold">البروفايل</p></div>
             <div onclick="switchView('settings')" class="nav-card" id="btn-settings"><i class="fas fa-cog text-xl"></i><p class="text-[10px] font-bold">الإعدادات</p></div>
         </footer>
@@ -586,6 +590,47 @@ window.addEventListener('beforeunload', async () => {
         });
     }
 });
+// معرف الغرفة الثابت (يمكنك تغييره)
+const PRIVATE_ROOM_ID = "elite_room_001";
+
+window.requestJoinGroup = async () => {
+    const userRef = doc(db, "users", me.id);
+    const userSnap = await getDoc(userRef);
+    const userData = userSnap.data();
+
+    // 1. إذا كان المستخدم مقبولاً مسبقاً
+    if (userData.groupStatus === 'approved') {
+        openChat(PRIVATE_ROOM_ID, "https://cdn-icons-png.flaticon.com/512/606/606506.png", "الغرفة الخاصة", true);
+        return;
+    }
+
+    // 2. إذا كان الطلب تحت الانتظار
+    if (userData.groupStatus === 'pending') {
+        Swal.fire('انتظار', 'طلبك قيد المراجعة من قبل المطور', 'info');
+        return;
+    }
+
+    // 3. إرسال طلب جديد
+    Swal.fire({
+        title: 'الانضمام للغرفة الخاصة',
+        text: "هذه الغرفة للموافقة عليها من قبل المطور فقط. هل تريد إرسال طلب؟",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'إرسال طلب'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            await updateDoc(userRef, { groupStatus: 'pending' });
+            // إرسال إشعار لك (كمطور) في قاعدة البيانات
+            await addDoc(collection(db, "notifications"), {
+                from: me.nick,
+                fromId: me.id,
+                type: 'join_request',
+                ts: Date.now()
+            });
+            Swal.fire('تم الإرسال', 'سيصلك إشعار عند قبولك', 'success');
+        }
+    });
+};
     </script>
 </body>
 </html>
