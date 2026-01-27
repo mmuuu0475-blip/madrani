@@ -399,7 +399,7 @@ window.openChat = (id, av, nick) => {
                 // إضافة محتوى الرسالة حسب نوعها
                 if(m.type === 'img') div.innerHTML = `<img src="${m.url}" class="w-32 rounded-lg mb-1" onclick="zoomMedia('${m.url}')">`;
                 else if(m.type === 'vid') div.innerHTML = `<video src="${m.url}" class="w-32 rounded-lg mb-1"></video>`;
-                else if(m.type === 'audio') div.innerHTML = `<div class="flex items-center gap-2" ondblclick="playAudio('${m.url}')"><i class="fas fa-play-circle text-2xl"></i> <span class="text-[9px]">بصمة صوتية</span></div>`;
+                else if(m.type === 'audio') div.innerHTML = `<div class="flex items-center gap-2" ondblclick="playAudio('${m.url}')"><i class="fas fa-play-circle text-2xl"></i> <span class="text-[9px]">اضغط 5 مرات لتشغيل الرسالة الصوتية</span></div>`;
                 
                 if(m.txt) div.innerHTML += `<div>${m.txt}</div>`;
                 container.appendChild(div);
