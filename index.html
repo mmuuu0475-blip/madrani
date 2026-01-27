@@ -209,7 +209,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, query, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot, query, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // إعدادات Firebase (يجب تبديلها ببياناتك الحقيقية)
         const firebaseConfig = {
@@ -556,7 +556,8 @@ function filterUserList(term) {
             Swal.fire({
                 imageUrl: type === 'img' ? url : null,
                 html: type === 'vid' ? `<video src="${url}" controls autoplay class="w-full"></video>` : null,
-                showCloseButton: true,
+      
+          showCloseButton: true,
                 showConfirmButton: false,
                 width: '90%'
             });
@@ -565,16 +566,22 @@ function filterUserList(term) {
         window.logout = () => { localStorage.clear(); location.reload(); };
 // دالة حساب الوقت المنقضي
 function timeAgo(timestamp) {
+    if (!timestamp || isNaN(timestamp)) return "غير نشط مسبقاً"; 
+    
     const now = Date.now();
-    const seconds = Math.floor((now - timestamp) / 1000);
+    const diffInSeconds = Math.floor((now - timestamp) / 1000);
 
-    if (seconds < 60) return "الآن";
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `منذ ${minutes} د`;
+    if (diffInSeconds < 60) return "منذ ثوانٍ";
+    
+    const minutes = Math.floor(diffInSeconds / 60);
+    if (minutes < 60) return `منذ ${minutes} دقيقة`;
+
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `منذ ${hours} سا`;
+    if (hours < 24) return `منذ ${hours} ساعة`;
     const days = Math.floor(hours / 24);
-    return `منذ ${days} يوم`;
+    if (days === 1) return "منذ يوم واحد";
+    if (days === 2) return "منذ يومين";
+    return `منذ ${days} أيام`;
 }
 window.addEventListener('beforeunload', async () => {
     if (me && me.id) {
