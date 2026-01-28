@@ -21,7 +21,22 @@
         * { font-family: 'Cairo', sans-serif; transition: all 0.3s ease; }
         body { margin: 0; padding: 0; overflow: hidden; background: #f4f7fe; }
         body.dark-mode { background: #0b0f19; color: white; }
+/* هذا الكود سيقوم بتصغير عرض المحتوى بنسبة 75% */
+#main-body {
+    zoom: 0.75; /* يعمل على معظم المتصفحات الحديثة */
+    -moz-transform: scale(0.75); /* للمتصفحات القديمة مثل فايرفوكس */
+    -moz-transform-origin: top center;
+}
 
+/* لضمان أن النافذة المنبثقة للدردشة تتأثر أيضاً بالتصغير وتظهر كاملة */
+#chat-modal-overlay {
+    zoom: 1; /* نترك الخلفية السوداء تغطي كامل الشاشة */
+}
+
+.chat-window {
+    transform: scale(0.9); /* تصغير إضافي لنافذة الدردشة لتناسب الشاشة */
+    transform-origin: center;
+}
         /* --- شاشة الانتظار (Splash) --- */
         #splash-screen {
             position: fixed; inset: 0; background: white; z-index: 10000;
